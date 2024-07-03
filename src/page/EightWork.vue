@@ -106,7 +106,25 @@
             width="70%"
             :before-close="handleClose">
             <el-form :model="newForm">
-                
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="涉及企业名称">
+                                <el-input :model="newForm.company" style="width: 400px"/>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="涉及企业层级">
+                                <el-select v-model="newForm.level" placeholder="Select">
+                                    <el-option
+                                    v-for="item in status"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
             </el-form>
             
             <span slot="footer" class="dialog-footer">
@@ -172,7 +190,8 @@ export default {
                 // }
             ],
             newForm: {
-
+                company: '',
+                level: 1
             },
         }
     },
