@@ -105,28 +105,186 @@
             :visible.sync="newDialogVisible"
             width="70%"
             :before-close="handleClose">
-            <el-form :model="newForm">
-                    <el-row>
-                        <el-col :span="8">
-                            <el-form-item label="涉及企业名称">
-                                <el-input :model="newForm.company" style="width: 400px"/>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="12">
-                            <el-form-item label="涉及企业层级">
-                                <el-select v-model="newForm.level" placeholder="Select">
-                                    <el-option
-                                    v-for="item in status"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
+            <el-form :model="newForm" label-width="100px" style="width: auto; padding: 10px 20px;"> 
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="涉及企业名称">
+                            <el-input :model="newForm.company" style="width: 200px"/>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="涉及企业层级">
+                            <el-select v-model="newForm.level" placeholder="Select" style="width: 200px">
+                                <el-option
+                                v-for="item in status"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="填报人">
+                            <el-input :model="newForm.informant" style="width: 200px;"/>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="填报时间">
+                            <el-input :mode="newForm.fillingTime" style="width: 200px;"/>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="风险事件名称">
+                            <el-input :model="newForm.riskEvent" style="width: 200px;"/>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="事件发生时间">
+                            <el-input :model="newForm.startTimeOfRiskEvent" style="width: 200px;"/>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="是否境外">
+                            <el-radio-group v-model="newForm.beyondTheBorders">
+                                <el-radio label="境内" value="0"></el-radio>
+                                <el-radio label="境外" value="1"></el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="是否涉诉">
+                            <el-radio-group v-model="newForm.involvedInAlawsuit">
+                                <el-radio label="涉诉" value="0"></el-radio>
+                                <el-radio label="不涉诉" value="1"></el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col>
+                        <el-form-item label="风险类别">
+                            <el-select v-model="newForm.level" placeholder="Select" style="width: 200px">
+                                <el-option
+                                v-for="item in status"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                                </el-option>
+                            </el-select>
+                            <el-select v-model="newForm.level" placeholder="Select" style="width: 200px">
+                                <el-option
+                                v-for="item in status"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-form-item label="损失（风险） 金额（万元）" style="align-self: center;">
+                    <el-input></el-input>
+                </el-form-item>
+                <el-form-item label="处置进展情况">
+                    <el-input type="textarea" maxlength="2"></el-input>
+                </el-form-item>
+                <el-form-item label="当前情况描述">
+                    <el-input type="textarea" maxlength="2"></el-input>
+                </el-form-item>
             </el-form>
+
+            <span style="width: 200px; margin-left: 0px; text-align: left; background-color: aqua;">重大变化/重大进展续报</span>
             
+            <el-table
+                border
+                style="width: 100%">
+                <el-table-column
+                prop="date"
+                label="序号">
+                </el-table-column>
+                <el-table-column
+                prop="name"
+                label="涉及企业名称(信用代码)">
+                </el-table-column>
+                <el-table-column
+                prop="name"
+                label="涉及企业层级">
+                </el-table-column>
+                <el-table-column
+                prop="name"
+                label="风险事件名称">
+                </el-table-column>
+                <el-table-column
+                prop="name"
+                label="风险类别">
+                </el-table-column>
+                <el-table-column
+                prop="name"
+                label="事件发生时间">
+                </el-table-column>
+                <el-table-column
+                prop="name"
+                label="当前情况描述">
+                </el-table-column>
+                <el-table-column
+                prop="name"
+                label="损失（风险） 金额（万元）">
+                </el-table-column>
+                <el-table-column
+                prop="name"
+                label="处置进展情况">
+                </el-table-column>
+                <el-table-column
+                prop="name"
+                label="当前情况描述">
+                </el-table-column>
+                <el-table-column
+                prop="name"
+                label="续报时间">
+                </el-table-column><el-table-column
+                prop="name"
+                label="附件">
+                </el-table-column>
+            </el-table>
+            <el-pagination align='left' 
+                @size-change="handleSizeChange" 
+                @current-change="handleCurrentChange"
+                :current-page="currentPage" 
+                :page-sizes="[1,5,10,20]" 
+                :page-size="pageSize" 
+                layout="total, sizes, prev, pager, next, jumper" 
+                :total="tableData.length">
+            </el-pagination>
+
+            <span align='left' style="display: block; width: 100;">专项整改报告</span>
+
+            <el-form>
+                <el-form-item label="基本情况"><el-input type="textarea" maxlength="2"></el-input></el-form-item>
+                <el-form-item label="原因分析"><el-input type="textarea" maxlength="2"></el-input></el-form-item>
+                <el-form-item label="处理结果"><el-input type="textarea" maxlength="2"></el-input></el-form-item>
+                <el-form-item label="其他需要报告的情况">
+                    <el-upload
+                        class="upload-demo"
+                        drag
+                        action=""
+                        :on-preview="handlePreview"
+                        :on-remove="handleRemove"
+                        :file-list="fileList"
+                        multiple>
+                        <i class="el-icon-upload"></i>
+                        <div class="el-upload__text">Drop file here or <em>click to upload</em></div>
+                        <div class="el-upload__tip" slot="tip">只能上传word/excel/图片/PDF文件，且不超过10MB</div>
+                        </el-upload>
+                </el-form-item>
+            </el-form>
+
             <span slot="footer" class="dialog-footer">
                 <el-button @click="newDialogVisible = false">Cancel</el-button>
                 <el-button type="primary" @click="newDialogVisible = false">Confirm</el-button>
@@ -186,12 +344,22 @@ export default {
                 //     company,
                 //     riskEvent,
                 //     StartTimeOfRiskEvent,
-                //     describe,
+                //     describe,informant
                 // }
             ],
             newForm: {
                 company: '',
-                level: 1
+                level: 1,
+                informant: '',
+                fillingTime: '',
+                riskEvent: '',
+                startTimeOfRiskEvent: '',
+                beyondTheBorders: '',
+                involvedInAlawsuit: '',
+                riskType: '',
+                lossAmount: '',
+                handleProgress: '',
+                currentDescribe: '',
             },
         }
     },
