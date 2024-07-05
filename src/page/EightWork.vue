@@ -36,7 +36,7 @@
         <div>
             <el-table
                 ref="multipleTable"
-                border=true
+                border
                 :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                 style="width: 100%"
                 @selection-change="handleSelectionChange">
@@ -46,9 +46,8 @@
                 </el-table-column>
                 <el-table-column
                 label="序号"
-                property="number"
+                property="id"
                 width="120">
-                <!-- <template slot-scope="scope">{{ scope.row.date }}</template> -->
                 </el-table-column>
                 <el-table-column
                 property="auditStatus"
@@ -84,9 +83,13 @@
                 property="operation"
                 label="操作"
                 show-overflow-tooltip>
-                <el-button icon="el-icon-shopping-bag-2">
+                <template slot-scope="scope">
+                    <el-button icon="el-icon-shopping-bag-2" @click="viewDetail(scope.$index)">
                     详情
-                </el-button>
+                    </el-button>
+                </template>
+
+                
                 </el-table-column>
             </el-table>
             <el-pagination align='left' 
@@ -105,16 +108,16 @@
             :visible.sync="newDialogVisible"
             width="70%"
             :before-close="handleClose">
-            <el-form :model="newForm" label-width="100px" style="width: auto; padding: 10px 20px;"> 
+            <el-form v-model="newForm" label-width="100px" style="width: auto; padding: 10px 20px;"> 
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="涉及企业名称">
-                            <el-input :model="newForm.company" style="width: 200px"/>
+                            <el-input :readonly="isView" v-model="newForm.company" style="width: 200px"/>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="涉及企业层级">
-                            <el-select v-model="newForm.level" placeholder="Select" style="width: 200px">
+                            <el-select :readonly="isView" v-model="newForm.level" placeholder="Select" style="width: 200px">
                                 <el-option
                                 v-for="item in status"
                                 :key="item.value"
@@ -128,31 +131,31 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="填报人">
-                            <el-input :model="newForm.informant" style="width: 200px;"/>
+                            <el-input :readonly="isView" v-model="newForm.informant" style="width: 200px;"/>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="填报时间">
-                            <el-input :mode="newForm.fillingTime" style="width: 200px;"/>
+                            <el-input :readonly="isView" v-model="newForm.fillingTime" style="width: 200px;"/>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="风险事件名称">
-                            <el-input :model="newForm.riskEvent" style="width: 200px;"/>
+                            <el-input :readonly="isView" v-model="newForm.riskEvent" style="width: 200px;"/>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="事件发生时间">
-                            <el-input :model="newForm.startTimeOfRiskEvent" style="width: 200px;"/>
+                            <el-input :readonly="isView" v-model="newForm.startTimeOfRiskEvent" style="width: 200px;"/>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="是否境外">
-                            <el-radio-group v-model="newForm.beyondTheBorders">
+                            <el-radio-group :readonly="isView" v-model="newForm.beyondTheBorders">
                                 <el-radio label="境内" value="0"></el-radio>
                                 <el-radio label="境外" value="1"></el-radio>
                             </el-radio-group>
@@ -160,7 +163,7 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="是否涉诉">
-                            <el-radio-group v-model="newForm.involvedInAlawsuit">
+                            <el-radio-group :readonly="isView" v-model="newForm.involvedInAlawsuit">
                                 <el-radio label="涉诉" value="0"></el-radio>
                                 <el-radio label="不涉诉" value="1"></el-radio>
                             </el-radio-group>
@@ -170,7 +173,7 @@
                 <el-row>
                     <el-col>
                         <el-form-item label="风险类别">
-                            <el-select v-model="newForm.level" placeholder="Select" style="width: 200px">
+                            <el-select :readonly="isView" v-model="newForm.level" placeholder="Select" style="width: 200px">
                                 <el-option
                                 v-for="item in status"
                                 :key="item.value"
@@ -178,7 +181,7 @@
                                 :value="item.value">
                                 </el-option>
                             </el-select>
-                            <el-select v-model="newForm.level" placeholder="Select" style="width: 200px">
+                            <el-select :readonly="isView" v-model="newForm.level" placeholder="Select" style="width: 200px">
                                 <el-option
                                 v-for="item in status"
                                 :key="item.value"
@@ -190,13 +193,13 @@
                     </el-col>
                 </el-row>
                 <el-form-item label="损失（风险） 金额（万元）" style="align-self: center;">
-                    <el-input></el-input>
+                    <el-input :readonly="isView" v-model="newForm.lossAmount"></el-input>
                 </el-form-item>
                 <el-form-item label="处置进展情况">
-                    <el-input type="textarea" maxlength="2"></el-input>
+                    <el-input :readonly="isView" v-model="newForm.handleProgress" type="textarea" maxlength="2"></el-input>
                 </el-form-item>
                 <el-form-item label="当前情况描述">
-                    <el-input type="textarea" maxlength="2"></el-input>
+                    <el-input :readonly="isView" v-model="newForm.describe" type="textarea" maxlength="2"></el-input>
                 </el-form-item>
             </el-form>
 
@@ -266,11 +269,12 @@
             <span align='left' style="display: block; width: 100;">专项整改报告</span>
 
             <el-form>
-                <el-form-item label="基本情况"><el-input type="textarea" maxlength="2"></el-input></el-form-item>
-                <el-form-item label="原因分析"><el-input type="textarea" maxlength="2"></el-input></el-form-item>
-                <el-form-item label="处理结果"><el-input type="textarea" maxlength="2"></el-input></el-form-item>
+                <el-form-item label="基本情况"><el-input :readonly="isView" v-model="newForm.baseCondition" type="textarea" maxlength="2"></el-input></el-form-item>
+                <el-form-item label="原因分析"><el-input :readonly="isView" v-model="newForm.analysis" type="textarea" maxlength="2"></el-input></el-form-item>
+                <el-form-item label="处理结果"><el-input :readonly="isView" v-model="newForm.addressResult" type="textarea" maxlength="2"></el-input></el-form-item>
                 <el-form-item label="其他需要报告的情况">
                     <el-upload
+                        :readonly="isView" 
                         class="upload-demo"
                         drag
                         action=""
@@ -286,8 +290,8 @@
             </el-form>
 
             <span slot="footer" class="dialog-footer">
-                <el-button @click="newDialogVisible = false">Cancel</el-button>
-                <el-button type="primary" @click="newDialogVisible = false">Confirm</el-button>
+                <el-button @click="newDialogVisible = false" v-if="!isView">Cancel</el-button>
+                <el-button type="primary" @click="newDialogVisible = false" v-if="!isView">Confirm</el-button>
             </span>
         </el-dialog>
 
@@ -300,6 +304,7 @@ export default {
     data() {
         return{
             newDialogVisible: false,
+            isView: true, //是否只是查看
             selected_status: {
                 label: '状态',
                 value: -1
@@ -317,25 +322,71 @@ export default {
             //表格分页参数
             pageSize: 10,
             currentPage: 1,
+            fileList: [],
             //表格数据
             tableData: [
                 {
-                    number: 1,
+                    id: 3,
+                    company: 'G',
                     auditStatus: 'GG',
                     submitStatus: 'GG',
-                    company: 'GG',
+                    level: 1,
+                    informant: '',
+                    fillingTime: '',
                     riskEvent: 'GG',
-                    startTimeOfRiskEvent: 'GG',
+                    startTimeOfRiskEvent: '',
+                    beyondTheBorders: '',
+                    involvedInAlawsuit: '',
+                    riskType: '',
+                    lossAmount: '',
+                    handleProgress: '',
                     describe: 'GG',
+                    baseCondition: '',
+                    analysis: '',
+                    addressResult: '',
+                    fileList: ''
                 },
                 {
-                    number: 1,
+                    id: 3,
+                    company: 'G',
                     auditStatus: 'GG',
                     submitStatus: 'GG',
-                    company: 'GG',
+                    level: 1,
+                    informant: '',
+                    fillingTime: '',
                     riskEvent: 'GG',
-                    startTimeOfRiskEvent: 'GG',
+                    startTimeOfRiskEvent: '',
+                    beyondTheBorders: '',
+                    involvedInAlawsuit: '',
+                    riskType: '',
+                    lossAmount: '',
+                    handleProgress: 'GG',
                     describe: 'GG',
+                    baseCondition: '',
+                    analysis: '',
+                    addressResult: '',
+                    fileList: ''
+                },
+                {
+                    id: 3,
+                    company: 'G',
+                    auditStatus: 'GG',
+                    submitStatus: 'GG',
+                    level: 1,
+                    informant: '',
+                    fillingTime: '',
+                    riskEvent: 'GG',
+                    startTimeOfRiskEvent: '',
+                    beyondTheBorders: '',
+                    involvedInAlawsuit: '',
+                    riskType: '',
+                    lossAmount: '',
+                    handleProgress: '',
+                    describe: '',
+                    baseCondition: '',
+                    analysis: '',
+                    addressResult: '',
+                    fileList: ''
                 },
                 // {
                 //     number,
@@ -348,18 +399,25 @@ export default {
                 // }
             ],
             newForm: {
-                company: '',
+                id: 3,
+                company: 'G',
+                auditStatus: 'GG',
+                submitStatus: 'GG',
                 level: 1,
                 informant: '',
                 fillingTime: '',
-                riskEvent: '',
+                riskEvent: 'GG',
                 startTimeOfRiskEvent: '',
                 beyondTheBorders: '',
                 involvedInAlawsuit: '',
                 riskType: '',
                 lossAmount: '',
                 handleProgress: '',
-                currentDescribe: '',
+                describe: '',
+                baseCondition: '',
+                analysis: '',
+                addressResult: '',
+                fileList: ''
             },
         }
     },
@@ -374,7 +432,21 @@ export default {
         handleCurrentChange(val) {
             console.log(`当前页: ${val}`);
             this.currentPage = val;
-        }
+        },
+        handlePreview(){
+
+        },
+        handleRemove(){},
+        viewDetail(index) {
+            this.newForm = this.tableData[index]
+            this.newDialogVisible = true
+            this.isView = true
+        },
+        handleSelectionChange(){},
+        handleClose(){
+            this.newDialogVisible = false
+            this.isView = false
+        },
     }
 
 }
