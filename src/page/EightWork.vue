@@ -28,10 +28,10 @@
         </div>
         <div>
             <el-button @click="newDialogVisible = true">新增</el-button>
-            <el-button>修改</el-button>
-            <el-button>删除</el-button>
-            <el-button>提交</el-button>
-            <el-button>撤回</el-button>
+            <el-button @click="update">修改</el-button>
+            <el-button @click="remove">删除</el-button>
+            <el-button @click="submit">提交</el-button>
+            <el-button @click="backup">撤回</el-button>
         </div>
         <div>
             <el-table
@@ -196,10 +196,10 @@
                     <el-input :readonly="isView" v-model="newForm.lossAmount"></el-input>
                 </el-form-item>
                 <el-form-item label="处置进展情况">
-                    <el-input :readonly="isView" v-model="newForm.handleProgress" type="textarea" maxlength="2"></el-input>
+                    <el-input :readonly="isView" v-model="newForm.handleProcess" type="textarea" maxlength="2"></el-input>
                 </el-form-item>
                 <el-form-item label="当前情况描述">
-                    <el-input :readonly="isView" v-model="newForm.describe" type="textarea" maxlength="2"></el-input>
+                    <el-input :readonly="isView" v-model="newForm.description" type="textarea" maxlength="2"></el-input>
                 </el-form-item>
             </el-form>
 
@@ -207,52 +207,49 @@
             
             <el-table
                 border
+                :data="changeHistory.slice((currentPage-1)*pageSize,currentPage*pageSize)"
                 style="width: 100%">
                 <el-table-column
-                prop="date"
+                prop="id"
                 label="序号">
                 </el-table-column>
                 <el-table-column
-                prop="name"
+                prop="company"
                 label="涉及企业名称(信用代码)">
                 </el-table-column>
                 <el-table-column
-                prop="name"
+                prop="level"
                 label="涉及企业层级">
                 </el-table-column>
                 <el-table-column
-                prop="name"
+                prop="riskEvent"
                 label="风险事件名称">
                 </el-table-column>
                 <el-table-column
-                prop="name"
+                prop="riskType"
                 label="风险类别">
                 </el-table-column>
                 <el-table-column
-                prop="name"
+                prop="startTimeOfRiskEvent"
                 label="事件发生时间">
                 </el-table-column>
                 <el-table-column
-                prop="name"
+                prop="description"
                 label="当前情况描述">
                 </el-table-column>
                 <el-table-column
-                prop="name"
+                prop="lossAmount"
                 label="损失（风险） 金额（万元）">
                 </el-table-column>
                 <el-table-column
-                prop="name"
+                prop="handleProcess"
                 label="处置进展情况">
                 </el-table-column>
                 <el-table-column
-                prop="name"
-                label="当前情况描述">
-                </el-table-column>
-                <el-table-column
-                prop="name"
+                prop="changeTime"
                 label="续报时间">
                 </el-table-column><el-table-column
-                prop="name"
+                prop="fieldList"
                 label="附件">
                 </el-table-column>
             </el-table>
@@ -263,7 +260,7 @@
                 :page-sizes="[1,5,10,20]" 
                 :page-size="pageSize" 
                 layout="total, sizes, prev, pager, next, jumper" 
-                :total="tableData.length">
+                :total="changeHistory.length">
             </el-pagination>
 
             <span align='left' style="display: block; width: 100;">专项整改报告</span>
@@ -323,6 +320,9 @@ export default {
             pageSize: 10,
             currentPage: 1,
             fileList: [],
+            selected_id: [],
+            selected_cnt: 0,
+            selected_row: {},
             //表格数据
             tableData: [
                 {
@@ -339,8 +339,8 @@ export default {
                     involvedInAlawsuit: '',
                     riskType: '',
                     lossAmount: '',
-                    handleProgress: '',
-                    describe: 'GG',
+                    handleProcess: '',
+                    description: 'GG',
                     baseCondition: '',
                     analysis: '',
                     addressResult: '',
@@ -360,8 +360,8 @@ export default {
                     involvedInAlawsuit: '',
                     riskType: '',
                     lossAmount: '',
-                    handleProgress: 'GG',
-                    describe: 'GG',
+                    handleProcess: 'GG',
+                    description: 'GG',
                     baseCondition: '',
                     analysis: '',
                     addressResult: '',
@@ -381,8 +381,8 @@ export default {
                     involvedInAlawsuit: '',
                     riskType: '',
                     lossAmount: '',
-                    handleProgress: '',
-                    describe: '',
+                    handleProcess: '',
+                    description: '',
                     baseCondition: '',
                     analysis: '',
                     addressResult: '',
@@ -412,13 +412,28 @@ export default {
                 involvedInAlawsuit: '',
                 riskType: '',
                 lossAmount: '',
-                handleProgress: '',
-                describe: '',
+                handleProcess: '',
+                description: '',
                 baseCondition: '',
                 analysis: '',
                 addressResult: '',
-                fileList: ''
+                fileList: '',
             },
+            changeHistory: [
+                {
+                    id: 3,
+                    company: 'G',
+                    level: 1,
+                    riskEvent: 'GG',
+                    startTimeOfRiskEvent: '',
+                    riskType: '',
+                    lossAmount: '',
+                    handleProcess: '',
+                    description: '',
+                    changeTime: '',
+                    fileList: '',
+                },
+            ]
         }
     },
     methods: {
@@ -442,11 +457,35 @@ export default {
             this.newDialogVisible = true
             this.isView = true
         },
-        handleSelectionChange(){},
+        handleSelectionChange(selection) {
+            this.selected_row = selection.map((item) => this.tableData.indexOf(item));
+            this.selected_id = selection.map((item) => item.id)
+            this.selected_cnt = this.selected_row.length
+        },
+
         handleClose(){
             this.newDialogVisible = false
             this.isView = false
         },
+
+        update() {
+            if (this.selected_cnt == 0) {
+                return
+            }
+            if (this.selected_cnt > 1) {
+                alert("只允许选中修改一项修改")
+                return
+            }
+            this.newForm = this.tableData[this.selected_row[0]]
+            this.newDialogVisible = true
+        },
+        remove() {
+            if (this.selected_cnt == 0) return
+            console.log(this.selected_id)
+            alert("没有mock了，自己删")
+        },
+        submit(){},
+        backup(){}
     }
 
 }
