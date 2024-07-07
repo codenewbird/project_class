@@ -1,7 +1,7 @@
 <template>
     <div>
         <div>
-            <el-row>
+            <el-row><!--TODO: model没有绑定-->
                 <el-col :span="2">
                     <el-select v-model="selected_status" placeholder="Select">
                         <el-option
@@ -26,7 +26,7 @@
             </el-row>
 
         </div>
-        <div>
+        <div><!--TODO: 样式没改-->
             <el-button @click="newDialogVisible = true">新增</el-button>
             <el-button @click="update">修改</el-button>
             <el-button @click="remove">删除</el-button>
@@ -50,14 +50,20 @@
                 width="120">
                 </el-table-column>
                 <el-table-column
-                property="auditStatus"
                 label="审核状态"
                 width="120">
+                <template slot-scope="scope">
+                <span v-if="scope.row.auditStatus == 1">已审核</span>
+                <span v-if="scope.row.auditStatus == 0">未审核</span>
+                </template>
                 </el-table-column>
                 <el-table-column
-                property="submitStatus"
                 label="上报状态"
                 width="120">
+                <template slot-scope="scope">
+                <span v-if="scope.row.submitStatus == 1">已上报</span>
+                <span v-if="scope.row.submitStatus == 0">未上报</span>
+                </template>
                 </el-table-column>
                 <el-table-column
                 property="company"
@@ -119,7 +125,7 @@
                         <el-form-item label="涉及企业层级">
                             <el-select :readonly="isView" v-model="newForm.level" placeholder="Select" style="width: 200px">
                                 <el-option
-                                v-for="item in status"
+                                v-for="item in levelOptions"
                                 :key="item.value"
                                 :label="item.label"
                                 :value="item.value">
@@ -136,7 +142,13 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="填报时间">
-                            <el-input :readonly="isView" v-model="newForm.fillingTime" style="width: 200px;"/>
+                            <el-date-picker
+                            style="width: 200px;"
+                            v-model="newForm.fillingTime"
+                            type="datetime"
+                            placeholder="选择日期时间"
+                            default-time="12:00:00">
+                            </el-date-picker>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -148,7 +160,13 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="事件发生时间">
-                            <el-input :readonly="isView" v-model="newForm.startTimeOfRiskEvent" style="width: 200px;"/>
+                            <el-date-picker
+                            style="width: 200px;"
+                            v-model="newForm.fillingTime"
+                            type="datetime"
+                            placeholder="选择日期时间"
+                            default-time="12:00:00">
+                            </el-date-picker>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -172,7 +190,7 @@
                 </el-row>
                 <el-row>
                     <el-col>
-                        <el-form-item label="风险类别">
+                        <el-form-item label="风险类别"> <!--TODO: 没写了-->
                             <el-select :readonly="isView" v-model="newForm.level" placeholder="Select" style="width: 200px">
                                 <el-option
                                 v-for="item in status"
@@ -296,7 +314,9 @@
 </template>
 
 
-<script> 
+<script>
+
+ 
 export default {
     data() {
         return{
@@ -316,20 +336,40 @@ export default {
                     value: 1
                 }
             ],
+            levelOptions: [
+            {
+                    label: "一级",
+                    value: 1
+                },
+                {
+                    label: "二级",
+                    value: 2
+                }
+            ],
             //表格分页参数
             pageSize: 10,
             currentPage: 1,
             fileList: [],
             selected_id: [],
             selected_cnt: 0,
-            selected_row: {},
+            selected_row: [],
+            auditStatusOption: [
+                {
+                    label: "已审核",
+                    value: 1
+                },
+                {
+                    label: "未审核",
+                    value:  0
+                }
+            ],
             //表格数据
             tableData: [
                 {
-                    id: 3,
+                    id: 1,
                     company: 'G',
-                    auditStatus: 'GG',
-                    submitStatus: 'GG',
+                    auditStatus: 1,
+                    submitStatus: 0,
                     level: 1,
                     informant: '',
                     fillingTime: '',
@@ -347,10 +387,10 @@ export default {
                     fileList: ''
                 },
                 {
-                    id: 3,
+                    id: 2,
                     company: 'G',
-                    auditStatus: 'GG',
-                    submitStatus: 'GG',
+                    auditStatus: 0,
+                    submitStatus: 0,
                     level: 1,
                     informant: '',
                     fillingTime: '',
@@ -370,8 +410,8 @@ export default {
                 {
                     id: 3,
                     company: 'G',
-                    auditStatus: 'GG',
-                    submitStatus: 'GG',
+                    auditStatus: 0,
+                    submitStatus: 1,
                     level: 1,
                     informant: '',
                     fillingTime: '',
@@ -484,8 +524,18 @@ export default {
             console.log(this.selected_id)
             alert("没有mock了，自己删")
         },
-        submit(){},
-        backup(){}
+        submit(){
+            this.selected_row.forEach((index) => {
+                this.tableData[index].submitStatus = 1
+            })
+            // 调用修改
+        },
+        backup(){
+            this.selected_row.forEach((index) => {
+                this.tableData[index].submitStatus = 0
+            })
+            // 调用修改
+        },
     }
 
 }
